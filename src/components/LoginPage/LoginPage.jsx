@@ -7,9 +7,10 @@ function LoginPage() {
 
   return (
     <div>
+      <h2>Login to Petopia</h2>
       <LoginForm />
-
       <center>
+        <p>Don't have an account?</p>
         <button
           type="button"
           className="btn btn_asLink"
