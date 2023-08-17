@@ -11,7 +11,8 @@ CREATE TABLE "posts" (
     "id" SERIAL PRIMARY KEY,
     "user_id" INT REFERENCES "user" ON DELETE CASCADE,
     "image_url" VARCHAR (500) NOT NULL,
-    "caption" TEXT,
+    "name" VARCHAR (100),
+    "bio" TEXT,
     "likes" INT DEFAULT 0,
     "timestamp" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

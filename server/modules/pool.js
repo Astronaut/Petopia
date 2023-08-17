@@ -6,6 +6,8 @@
 */
 
 const pg = require('pg');
+const { v2: cloudinary } = require('cloudinary');
+
 let pool;
 
 // When our app is deployed to the internet 
