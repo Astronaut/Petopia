@@ -1,0 +1,13 @@
+.login-page-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+   }
+  
+  .centered-content {
+    text-align: center;
+    color: whitesmoke;
+    margin-top: 20px;
+  }
+

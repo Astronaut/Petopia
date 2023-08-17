@@ -1,26 +1,30 @@
 import React from 'react';
 import LoginForm from '../LoginForm/LoginForm';
 import { useHistory } from 'react-router-dom';
+import { Button } from '@mui/material';
+import './LoginPage.css';
 
 function LoginPage() {
   const history = useHistory();
 
   return (
-    <div>
+    <div className="login-page-container">
       <h2>Login to Petopia</h2>
       <LoginForm />
-      <center>
+      <div className="centered-content">
         <p>Don't have an account?</p>
-        <button
-          type="button"
-          className="btn btn_asLink"
+        </div>
+        <div>
+        <Button
+          variant="outlined"
+          className="mui-btn-asLink"
           onClick={() => {
             history.push('/registration');
           }}
         >
           Register
-        </button>
-      </center>
+        </Button>
+      </div>
     </div>
   );
 }
