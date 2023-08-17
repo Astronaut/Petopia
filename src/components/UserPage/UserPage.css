@@ -1,0 +1,34 @@
+.pets {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.pets div {
+    margin: 5px;
+    margin-top: 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+}
+
+.pets div:hover {
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+
+.photo-image {
+    height: 400px;
+    width: 400px;
+    object-fit: cover;
+}
+
+.pets .photo-title {
+    display: block; 
+    width: 100%; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap; 
+    height: 30px;
+    text-align: center;
+    font-weight: bolder;
+}

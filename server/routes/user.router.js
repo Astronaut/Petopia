@@ -11,7 +11,6 @@ router.get('/', rejectUnauthenticated, (req, res) => {
   res.send(req.user);
 });
 
-// verifying the user is authenticated before getting photos
 router.get('/photos', rejectUnauthenticated, (req, res) => {
   console.log('Request user:', req.user);
   const userId = req.user.id;
@@ -32,7 +31,30 @@ router.get('/photos', rejectUnauthenticated, (req, res) => {
     });
 });
 
-// Handles POST request with new user data
+// Add DELETE route for photos
+router.delete('/photos/:photoId', rejectUnauthenticated, (req, res) => {
+  const userId = req.user.id;
+  const photoId = req.params.photoId;
+
+  const query = `
+    DELETE FROM "posts"
+    WHERE id = $1 AND user_id = $2;
+  `;
+
+  pool.query(query, [photoId, userId])
+    .then((result) => {
+      if (result.rowCount === 0) {
+        res.status(404).send({ message: 'Photo not found or not owned by user.' });
+      } else {
+        res.sendStatus(200);
+      }
+    })
+    .catch((error) => {
+      console.error('Error deleting user photo:', error);
+      res.sendStatus(500);
+    });
+});
+
 router.post('/register', (req, res, next) => {
   const username = req.body.username;
   const password = encryptLib.encryptPassword(req.body.password);
@@ -48,14 +70,11 @@ router.post('/register', (req, res, next) => {
     });
 });
 
-// Handles login form authenticate/login POST
 router.post('/login', userStrategy.authenticate('local'), (req, res) => {
   res.sendStatus(200);
 });
 
-// clear all server session information about this user
 router.post('/logout', (req, res) => {
-  // Use passport's built-in method to log out the user
   req.logout();
   res.sendStatus(200);
 });

@@ -17,6 +17,7 @@ function RegistrationPage() {
         <div>
           <Button
             variant="outlined"
+            style={{color: 'white'}}
             className="mui-btn-asLink"
             onClick={() => {
               history.push('/login');

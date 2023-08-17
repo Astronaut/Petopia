@@ -26,6 +26,7 @@ function LandingPage() {
             <h4>Already a Member?</h4>
             <Button
               variant="outlined"
+              style={{color: 'white'}}
               className="mui-btn-asLink"
               onClick={() => {
                 history.push('/login');
