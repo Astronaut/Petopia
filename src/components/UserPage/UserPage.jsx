@@ -8,6 +8,9 @@ import './UserPage.css';
 const darkTheme = createTheme({
   palette: {
     type: 'dark',
+    primary: {
+      main: '#90caf9',
+    },
   },
 });
 
@@ -19,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
   gridItem: {
     maxWidth: 400,
     minWidth: 397,
-    height: 400,
+    height: 460,
     margin: '0 auto',
   },
   photoImage: {
@@ -38,22 +41,20 @@ function UserPage() {
 
   useEffect(() => {
     axios.get('/api/user/photos')
-      .then((response) => {
-        setUserPhotos(response.data);
-      })
-      .catch((error) => {
-        console.error('Error fetching user photos:', error);
-      });
+    .then((response) => {
+      // Sorting in descending order
+      const sortedPhotos = response.data.sort((a, b) => b.id - a.id);  
+      setUserPhotos(sortedPhotos);
+    })
+    .catch((error) => {
+      console.error('Error fetching user photos:', error);
+    });
   }, []);
 
-  const handlePhotoClick = (id) => {
-    const selected = userPhotos.find((photo) => photo.id === id);
-    setSelectedPhoto(selected);
+  const handlePhotoClick = (photo) => {
+    console.log("Photo wclicked:", photo);
+    setSelectedPhoto(photo);
     setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
   };
 
   const handleDelete = (photoId) => {
@@ -67,14 +68,35 @@ function UserPage() {
       });
   };
 
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const generateSnakeOrder = (arr) => {
+    let result = [];
+    let rows = Math.ceil(arr.length / 4);
+  
+    for (let i = 0; i < rows; i++) {
+      if (i % 2 === 0) {
+        result = result.concat(arr.slice(i * 4, i * 4 + 4));
+      } else {
+        result = result.concat(arr.slice(i * 4, i * 4 + 4).reverse());
+      }
+    }
+  
+    return result;
+  };
+
+  const orderedPhotos = generateSnakeOrder(userPhotos);
+
   return (
     <ThemeProvider theme={darkTheme}>
       <div className={classes.container}>
         <h2>{user.username}</h2>
         <Grid container spacing={3} className="pets">
-          {userPhotos.map((photo) => (
+          {orderedPhotos.map((photo) => (
             <Grid item xs={12} sm={6} md={3} lg={2} key={photo.id} className={classes.gridItem}>
-              <Card onClick={() => handlePhotoClick(photo.id)}>
+              <Card onClick={() => handlePhotoClick(photo)}>
                 <CardActionArea>
                   <CardMedia
                     className={classes.photoImage}
@@ -83,6 +105,9 @@ function UserPage() {
                     title={`Photo ${photo.id}`}
                   />
                 </CardActionArea>
+                <div style={{ textAlign: 'center', padding: '10px' }} className="likes-count">
+                  {photo.likes} {photo.likes === 1 ? 'Like' : 'Likes'}
+                </div>
               </Card>
             </Grid>
           ))}
@@ -93,16 +118,16 @@ function UserPage() {
           aria-labelledby="photo-details-dialog-title"
         >
           <DialogTitle id="photo-details-dialog-title">
-          Photo Details
-            </DialogTitle>
-            <DialogContent>
-                <DialogContentText>
-                    {selectedPhoto?.caption}
-                </DialogContentText>
-            </DialogContent>
+            Photo Details
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              {selectedPhoto?.caption}
+            </DialogContentText>
+          </DialogContent>
           <DialogActions>
             <Button onClick={handleClose} color="primary">
-              Cancel
+              Close
             </Button>
             <Button 
               onClick={() => handleDelete(selectedPhoto?.id)} 

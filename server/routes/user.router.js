@@ -12,14 +12,14 @@ router.get('/', rejectUnauthenticated, (req, res) => {
 });
 
 router.get('/photos', rejectUnauthenticated, (req, res) => {
-  console.log('Request user:', req.user);
   const userId = req.user.id;
-
   const query = `
-    SELECT id, image_url, caption
-    FROM "posts"
-    WHERE user_id = $1;
-  `;
+  SELECT posts.id, posts.image_url, posts.caption, COUNT(likes.user_id)::integer as likes
+  FROM "posts"
+  LEFT JOIN "likes" ON "posts".id = "likes".post_id
+  WHERE posts.user_id = $1
+  GROUP BY posts.id;
+`;
 
   pool.query(query, [userId])
     .then((result) => {
