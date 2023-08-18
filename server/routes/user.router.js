@@ -11,7 +11,6 @@ router.get('/', rejectUnauthenticated, (req, res) => {
   res.send(req.user);
 });
 
-// GET route for specific user's photos
 router.get('/photos', rejectUnauthenticated, (req, res) => {
   console.log('Request user:', req.user);
   const userId = req.user.id;
@@ -32,12 +31,13 @@ router.get('/photos', rejectUnauthenticated, (req, res) => {
     });
 });
 
-// GET route for all photos for the gallery page
 router.get('/gallery', (req, res) => {
   const query = `
-    SELECT posts.id, posts.image_url, posts.caption, "user".username
+    SELECT posts.id, posts.image_url, posts.caption, "user".username, COUNT(likes.user_id)::integer as likes
     FROM "posts"
-    JOIN "user" ON "posts".user_id = "user".id;
+    JOIN "user" ON "posts".user_id = "user".id
+    LEFT JOIN "likes" ON "posts".id = "likes".post_id
+    GROUP BY posts.id, "user".username;
   `;
 
   pool.query(query)
@@ -50,7 +50,6 @@ router.get('/gallery', (req, res) => {
     });
 });
 
-// DELETE route for photos
 router.delete('/photos/:photoId', rejectUnauthenticated, (req, res) => {
   const userId = req.user.id;
   const photoId = req.params.photoId;
@@ -96,6 +95,59 @@ router.post('/login', userStrategy.authenticate('local'), (req, res) => {
 router.post('/logout', (req, res) => {
   req.logout();
   res.sendStatus(200);
+});
+
+router.post('/gallery/:photoId/like', rejectUnauthenticated, (req, res) => {
+  const userId = req.user.id;
+  const photoId = req.params.photoId;
+
+  const checkQuery = `
+    SELECT * FROM "likes"
+    WHERE user_id = $1 AND post_id = $2;
+  `;
+
+  pool.query(checkQuery, [userId, photoId])
+    .then((result) => {
+      if (result.rows.length > 0) {
+        res.status(400).send({ message: 'You have already liked this photo.' });
+        throw new Error('User has already liked this photo.');
+      } else {
+        const insertQuery = `
+          INSERT INTO "likes" (user_id, post_id)
+          VALUES ($1, $2);
+        `;
+
+        return pool.query(insertQuery, [userId, photoId]);
+      }
+    })
+    .then(() => {
+      res.sendStatus(200);
+    })
+    .catch((error) => {
+      if (error.message !== 'User has already liked this photo.') {
+        console.error('Error liking the photo:', error);
+        res.sendStatus(500);
+      }
+    });
+});
+
+router.get('/gallery/:photoId/likes', (req, res) => {
+  const photoId = req.params.photoId;
+
+  const query = `
+    SELECT COUNT(user_id) AS likes
+    FROM "likes"
+    WHERE post_id = $1;
+  `;
+
+  pool.query(query, [photoId])
+    .then((result) => {
+      res.send({ likes: result.rows[0].likes });
+    })
+    .catch((error) => {
+      console.error('Error fetching likes for the photo:', error);
+      res.sendStatus(500);
+    });
 });
 
 module.exports = router;

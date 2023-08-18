@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles, createTheme, ThemeProvider } from '@material-ui/core/styles';
 import { Card, CardActionArea, CardMedia, Grid, Dialog, DialogTitle, DialogActions, DialogContent, DialogContentText, Button, Link } from '@material-ui/core';
 import axios from 'axios';
+import './GalleryPage.css';
 
 const darkTheme = createTheme({
     palette: {
@@ -20,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
   gridItem: {
     maxWidth: 400,
     minWidth: 397,
-    height: 400,
+    height: 460,
     margin: '0 auto',
   },
   photoImage: {
@@ -55,13 +56,19 @@ function GalleryPage() {
   const handleLike = () => {
     axios.post(`/api/user/gallery/${selectedPhoto?.id}/like`)
       .then(response => {
-        // Handle the response, e.g., update the photo data or display a success message
+        // Increases the like count
+        const updatedGalleryPhotos = galleryPhotos.map(photo =>
+          photo.id === selectedPhoto.id ? { ...photo, likes: Number(photo.likes) + 1 } : photo
+        );
+
+        setGalleryPhotos(updatedGalleryPhotos);
+        console.log('Photo liked successfully!');
       })
       .catch(error => {
         console.error('Error liking the photo:', error);
       });
   };
-
+  
   const handleClose = () => {
     setOpen(false);
   };
@@ -70,7 +77,7 @@ function GalleryPage() {
     <ThemeProvider theme={darkTheme}>
       <div className={classes.container}>
         <h2>Petopia Feed!</h2>
-        <Grid container spacing={3}>
+        <Grid container spacing={3} className="feed">
           {galleryPhotos.map((photo) => (
             <Grid item xs={12} sm={6} md={3} lg={2} key={photo.id} className={classes.gridItem}>
               <Card onClick={() => handlePhotoClick(photo.id)}>
@@ -82,6 +89,9 @@ function GalleryPage() {
                     title={`Photo ${photo.id}`}
                   />
                 </CardActionArea>
+                <div style={{ textAlign: 'center', padding: '10px' }} className="likes-count">
+                  {photo.likes} {photo.likes === 1 ? 'Like' : 'Likes'}
+                </div>
               </Card>
             </Grid>
           ))}
