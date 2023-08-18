@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import { makeStyles, createTheme, ThemeProvider } from '@material-ui/core/styles';
-import { Card, CardActionArea, CardMedia, Grid, Dialog, DialogTitle, DialogContent, DialogContentText, Button, DialogActions } from '@material-ui/core';
+import { Card, CardActionArea, CardMedia, Grid, Dialog, DialogTitle, DialogActions, DialogContent, DialogContentText, Button, Link } from '@material-ui/core';
 import axios from 'axios';
-import './UserPage.css';
 
 const darkTheme = createTheme({
-  palette: {
-    type: 'dark',
-  },
-});
+    palette: {
+      type: 'dark',
+      primary: {
+        main: '#90caf9',
+      },
+    },
+  });
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -29,50 +30,48 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function UserPage() {
+function GalleryPage() {
   const classes = useStyles();
-  const user = useSelector((store) => store.user);
-  const [userPhotos, setUserPhotos] = useState([]);
+  const [galleryPhotos, setGalleryPhotos] = useState([]);
   const [open, setOpen] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
 
   useEffect(() => {
-    axios.get('/api/user/photos')
+    axios.get('/api/user/gallery')
       .then((response) => {
-        setUserPhotos(response.data);
+        setGalleryPhotos(response.data);
       })
       .catch((error) => {
-        console.error('Error fetching user photos:', error);
+        console.error('Error fetching gallery photos:', error);
       });
   }, []);
 
   const handlePhotoClick = (id) => {
-    const selected = userPhotos.find((photo) => photo.id === id);
+    const selected = galleryPhotos.find((photo) => photo.id === id);
     setSelectedPhoto(selected);
     setOpen(true);
+  };
+
+  const handleLike = () => {
+    axios.post(`/api/user/gallery/${selectedPhoto?.id}/like`)
+      .then(response => {
+        // Handle the response, e.g., update the photo data or display a success message
+      })
+      .catch(error => {
+        console.error('Error liking the photo:', error);
+      });
   };
 
   const handleClose = () => {
     setOpen(false);
   };
 
-  const handleDelete = (photoId) => {
-    axios.delete(`/api/user/photos/${photoId}`)
-      .then(() => {
-        setUserPhotos(prevPhotos => prevPhotos.filter(photo => photo.id !== photoId));
-        setOpen(false);
-      })
-      .catch(error => {
-        console.error('Error deleting photo:', error);
-      });
-  };
-
   return (
     <ThemeProvider theme={darkTheme}>
       <div className={classes.container}>
-        <h2>{user.username}</h2>
-        <Grid container spacing={3} className="pets">
-          {userPhotos.map((photo) => (
+        <h2>Petopia Feed!</h2>
+        <Grid container spacing={3}>
+          {galleryPhotos.map((photo) => (
             <Grid item xs={12} sm={6} md={3} lg={2} key={photo.id} className={classes.gridItem}>
               <Card onClick={() => handlePhotoClick(photo.id)}>
                 <CardActionArea>
@@ -93,22 +92,22 @@ function UserPage() {
           aria-labelledby="photo-details-dialog-title"
         >
           <DialogTitle id="photo-details-dialog-title">
-          Photo Details
-            </DialogTitle>
-            <DialogContent>
-                <DialogContentText>
-                    {selectedPhoto?.caption}
-                </DialogContentText>
-            </DialogContent>
+            Photo Details
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              {selectedPhoto?.caption}
+            </DialogContentText>
+            <DialogContentText>
+              Posted by: <Link href={`/users/${selectedPhoto?.username}/photos`}>{selectedPhoto?.username}</Link>
+            </DialogContentText>
+          </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose} color="primary">
-              Cancel
+            <Button onClick={handleLike} color="primary">
+              Like
             </Button>
-            <Button 
-              onClick={() => handleDelete(selectedPhoto?.id)} 
-              color="secondary"
-            >
-              Delete
+            <Button onClick={handleClose} color="primary">
+              Close
             </Button>
           </DialogActions>
         </Dialog>
@@ -117,4 +116,4 @@ function UserPage() {
   );
 }
 
-export default UserPage;
+export default GalleryPage;

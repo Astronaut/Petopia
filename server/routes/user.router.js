@@ -11,12 +11,13 @@ router.get('/', rejectUnauthenticated, (req, res) => {
   res.send(req.user);
 });
 
+// GET route for specific user's photos
 router.get('/photos', rejectUnauthenticated, (req, res) => {
   console.log('Request user:', req.user);
   const userId = req.user.id;
 
   const query = `
-    SELECT id, image_url, bio, name
+    SELECT id, image_url, caption
     FROM "posts"
     WHERE user_id = $1;
   `;
@@ -31,7 +32,25 @@ router.get('/photos', rejectUnauthenticated, (req, res) => {
     });
 });
 
-// Add DELETE route for photos
+// GET route for all photos for the gallery page
+router.get('/gallery', (req, res) => {
+  const query = `
+    SELECT posts.id, posts.image_url, posts.caption, "user".username
+    FROM "posts"
+    JOIN "user" ON "posts".user_id = "user".id;
+  `;
+
+  pool.query(query)
+    .then((result) => {
+      res.send(result.rows);
+    })
+    .catch((error) => {
+      console.error('Error fetching all photos:', error);
+      res.sendStatus(500);
+    });
+});
+
+// DELETE route for photos
 router.delete('/photos/:photoId', rejectUnauthenticated, (req, res) => {
   const userId = req.user.id;
   const photoId = req.params.photoId;

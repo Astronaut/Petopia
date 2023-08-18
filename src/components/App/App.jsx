@@ -6,6 +6,7 @@ import Footer from '../Footer/Footer';
 import ProtectedRoute from '../ProtectedRoute/ProtectedRoute';
 import AboutPage from '../AboutPage/AboutPage';
 import UserPage from '../UserPage/UserPage';
+import GalleryPage from '../GalleryPage/GalleryPage';
 import AddPostPage from '../AddPostPage/AddPostPage';
 import LandingPage from '../LandingPage/LandingPage';
 import LoginPage from '../LoginPage/LoginPage';
@@ -35,6 +36,10 @@ function App() {
           </Route>
 
         {/* These routes are protected */}
+          <ProtectedRoute exact path="/gallery">
+            <GalleryPage />
+          </ProtectedRoute>
+
           <ProtectedRoute exact path="/user" >
             <UserPage />
           </ProtectedRoute>

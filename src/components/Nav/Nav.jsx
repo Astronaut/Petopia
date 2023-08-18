@@ -27,11 +27,15 @@ function Nav() {
             <Link className="navLink" to="/user">
               Home
             </Link>
+            
+            <Link className="navLink" to="/gallery">
+              Feed
+            </Link>
 
             <Link className="navLink" to="/addpost">
               Add Post
             </Link>
-
+            
             <LogOutButton className="navLink" />
           </>
         )}

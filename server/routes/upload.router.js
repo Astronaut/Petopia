@@ -4,28 +4,29 @@ const pool = require('../modules/pool');
 const cloudinary = require('../cloudinaryConfig/cloudinaryConfig');
 const multer = require('multer');
 const { rejectUnauthenticated } = require('../modules/authentication-middleware');
+const fs = require('fs');
 
 const upload = multer({ dest: 'uploads/' });
 
 router.post('/', rejectUnauthenticated, upload.single('file'), async (req, res) => {
     try {
-        if (!req.file) {
-            throw new Error("No file uploaded.");
-        }
-        
         const filePath = req.file.path;
 
-        // Upload the image to Cloudinary
-        console.log(cloudinary);
+        if (!filePath) {
+            throw new Error('File path is missing.');
+        }
+
         const uploadResponse = await cloudinary.uploader.upload(filePath);
 
-        // Store the URL (and other details) to PostgreSQL database
+        // delete the file after uploading
+        fs.unlinkSync(filePath);
+
         const queryText = `
-            INSERT INTO posts (image_url, name, bio, user_id) 
-            VALUES ($1, $2, $3, $4)
+            INSERT INTO posts (image_url, caption, user_id) 
+            VALUES ($1, $2, $3)
         `;
         const userId = req.user.id;
-        await pool.query(queryText, [uploadResponse.url, req.body.name, req.body.bio, userId]);
+        await pool.query(queryText, [uploadResponse.url, req.body.caption, userId]);
         
         res.sendStatus(201);
     } catch (error) {
