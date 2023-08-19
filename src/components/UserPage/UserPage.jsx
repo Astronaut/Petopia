@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles, createTheme, ThemeProvider } from '@material-ui/core/styles';
-import { Card, CardActionArea, CardMedia, Grid, Dialog, DialogTitle, DialogContent, DialogContentText, Button, DialogActions } from '@material-ui/core';
+import Snackbar from '@material-ui/core/Snackbar';
+import { Card, CardActionArea, CardMedia, Grid, Dialog, DialogTitle, DialogContent, DialogContentText, Button, DialogActions, TextField } from '@material-ui/core';
 import axios from 'axios';
 import './UserPage.css';
 
@@ -38,24 +39,54 @@ function UserPage() {
   const [userPhotos, setUserPhotos] = useState([]);
   const [open, setOpen] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedCaption, setEditedCaption] = useState('');
+  const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
+    let isMounted = true;
+
     axios.get('/api/user/photos')
     .then((response) => {
-      // Sorting in descending order
-      const sortedPhotos = response.data.sort((a, b) => b.id - a.id);  
-      setUserPhotos(sortedPhotos);
+      const sortedPhotos = response.data.sort((a, b) => b.id - a.id);
+      if (isMounted) setUserPhotos(sortedPhotos);
     })
     .catch((error) => {
       console.error('Error fetching user photos:', error);
+      setErrorMessage('Failed to fetch photos.');
     });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  const handlePhotoClick = (photo) => {
-    console.log("Photo wclicked:", photo);
-    setSelectedPhoto(photo);
+  const handlePhotoClick = ({ id, caption }) => {
+    setSelectedPhoto({ id, caption });
+    setEditedCaption(caption);
     setOpen(true);
   };
+  
+  const handleSave = () => {
+    const updatedPhotos = userPhotos.map(photo => 
+        photo.id === selectedPhoto.id ? { ...photo, caption: editedCaption } : photo
+    );
+
+    setUserPhotos(updatedPhotos);
+    setSelectedPhoto(prev => ({ ...prev, caption: editedCaption }));
+    setIsEditing(false);
+
+    axios.put(`/api/user/photos/${selectedPhoto.id}`, {
+        caption: editedCaption
+    })
+    .catch(error => {
+        console.error('Error updating caption:', error);
+        setErrorMessage('Failed to update caption.');
+
+        setUserPhotos(userPhotos);
+        setSelectedPhoto(prev => ({ ...prev, caption: prev.caption }));
+    });
+};
 
   const handleDelete = (photoId) => {
     axios.delete(`/api/user/photos/${photoId}`)
@@ -65,13 +96,16 @@ function UserPage() {
       })
       .catch(error => {
         console.error('Error deleting photo:', error);
+        setErrorMessage('Failed to delete photo.');
       });
   };
 
   const handleClose = () => {
     setOpen(false);
+    setIsEditing(false);
+    setEditedCaption('');
   };
-
+  
   const generateSnakeOrder = (arr) => {
     let result = [];
     let rows = Math.ceil(arr.length / 4);
@@ -105,7 +139,7 @@ function UserPage() {
                     title={`Photo ${photo.id}`}
                   />
                 </CardActionArea>
-                <div style={{ textAlign: 'center', padding: '10px' }} className="likes-count">
+                <div style={{ textAlign: 'center', padding: '10px' }}>
                   {photo.likes} {photo.likes === 1 ? 'Like' : 'Likes'}
                 </div>
               </Card>
@@ -117,26 +151,61 @@ function UserPage() {
           onClose={handleClose}
           aria-labelledby="photo-details-dialog-title"
         >
-          <DialogTitle id="photo-details-dialog-title">
-            Photo Details
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              {selectedPhoto?.caption}
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose} color="primary">
-              Close
-            </Button>
-            <Button 
-              onClick={() => handleDelete(selectedPhoto?.id)} 
-              color="secondary"
-            >
-              Delete
-            </Button>
-          </DialogActions>
+            <DialogTitle id="photo-details-dialog-title">
+                Photo Details
+            </DialogTitle>
+            <DialogContent>
+                {isEditing ? (
+                    <TextField 
+                        fullWidth
+                        value={editedCaption}
+                        onChange={(e) => setEditedCaption(e.target.value)}
+                    />
+                ) : (
+                    <DialogContentText>
+                        {selectedPhoto?.caption}
+                    </DialogContentText>
+                )}
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={handleClose} color="primary">
+                    Close
+                </Button>
+                {isEditing ? (
+                    <>
+                        <Button onClick={() => setIsEditing(false)} color="primary">
+                            Cancel
+                        </Button>
+                        <Button onClick={handleSave} color="primary">
+                            Save
+                        </Button>
+                    </>
+                ) : (
+                    <>
+                        <Button onClick={() => {
+                          setIsEditing(true);
+                          setEditedCaption(selectedPhoto?.caption);
+                        }} color="primary">
+                            Edit
+                        </Button>
+                        <Button 
+                            onClick={() => handleDelete(selectedPhoto?.id)} 
+                            color="secondary"
+                        >
+                            Delete
+                        </Button>
+                    </>
+                )}
+            </DialogActions>
         </Dialog>
+        {errorMessage && (
+            <Snackbar 
+                open={!!errorMessage}
+                message={errorMessage}
+                autoHideDuration={6000}
+                onClose={() => setErrorMessage(null)}
+            />
+        )}
       </div>
     </ThemeProvider>
   );

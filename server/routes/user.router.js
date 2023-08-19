@@ -77,6 +77,32 @@ router.delete('/photos/:photoId', rejectUnauthenticated, (req, res) => {
     });
 });
 
+router.put('/photos/:photoId', rejectUnauthenticated, (req, res) => {
+  const userId = req.user.id;
+  const photoId = req.params.photoId;
+  const caption = req.body.caption;
+
+  const query = `
+    UPDATE "posts"
+    SET caption = $1
+    WHERE id = $2 AND user_id = $3
+    RETURNING id;
+  `;
+
+  pool.query(query, [caption, photoId, userId])
+    .then((result) => {
+      if (result.rowCount === 0) {
+        res.status(404).send({ message: 'Photo not found or not owned by user.' });
+      } else {
+        res.sendStatus(200);
+      }
+    })
+    .catch((error) => {
+      console.error('Error updating photo caption:', error);
+      res.sendStatus(500);
+    });
+});
+
 router.post('/register', (req, res, next) => {
   const username = req.body.username;
   const password = encryptLib.encryptPassword(req.body.password);
@@ -172,6 +198,27 @@ router.delete('/gallery/:photoId/like', rejectUnauthenticated, (req, res) => {
     })
     .catch((error) => {
       console.error('Error unliking the photo:', error);
+      res.sendStatus(500);
+    });
+});
+
+router.get('/users/:username/photos', (req, res) => {
+  const username = req.params.username;
+  const query = `
+    SELECT posts.id, posts.image_url, posts.caption, COUNT(likes.user_id)::integer as likes
+    FROM "posts"
+    JOIN "user" ON "posts".user_id = "user".id
+    LEFT JOIN "likes" ON "posts".id = "likes".post_id
+    WHERE "user".username = $1
+    GROUP BY posts.id;
+  `;
+
+  pool.query(query, [username])
+    .then((result) => {
+      res.send(result.rows);
+    })
+    .catch((error) => {
+      console.error(`Error fetching photos for user ${username}:`, error);
       res.sendStatus(500);
     });
 });

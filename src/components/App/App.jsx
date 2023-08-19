@@ -11,6 +11,7 @@ import AddPostPage from '../AddPostPage/AddPostPage';
 import LandingPage from '../LandingPage/LandingPage';
 import LoginPage from '../LoginPage/LoginPage';
 import RegisterPage from '../RegisterPage/RegisterPage';
+import OtherUserPage from '../OtherUserPage/OtherUserPage';
 import './App.css';
 
 function App() {
@@ -46,6 +47,10 @@ function App() {
 
           <ProtectedRoute exact path="/addpost" >
             <AddPostPage />
+          </ProtectedRoute>
+
+          <ProtectedRoute exact path="/users/:username/photos" >
+            <OtherUserPage />
           </ProtectedRoute>
 
           <Route exact path="/login" >

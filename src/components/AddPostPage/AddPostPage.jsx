@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Button, TextField, TextareaAutosize, Paper, Typography } from '@material-ui/core';
+import { Button, TextareaAutosize, Paper, Typography } from '@material-ui/core';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -36,6 +36,7 @@ function AddPostPage() {
     const classes = useStyles();
     const [fileInput, setFileInput] = useState(null);
     const [caption, setCaption] = useState('');
+    const [previewURL, setPreviewURL] = useState(null);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -57,7 +58,15 @@ function AddPostPage() {
 
             if (response.status === 201) {
                 alert('Data added successfully!');
+
+                // Reset states
+                setCaption('');
                 setFileInput(null);
+                setPreviewURL(null);
+
+                // Clear the file input cache
+                document.getElementById('imageUpload').value = '';
+
             } else {
                 alert('Error adding data.');
             }
@@ -76,7 +85,10 @@ function AddPostPage() {
                 <input 
                     type="file" 
                     accept="image/*" 
-                    onChange={(e) => setFileInput(e.target.files[0])} 
+                    onChange={(e) => {
+                        setFileInput(e.target.files[0]);
+                        setPreviewURL(URL.createObjectURL(e.target.files[0]));
+                    }}
                     id="imageUpload"
                     className={classes.fileInput}
                 />
@@ -91,6 +103,13 @@ function AddPostPage() {
                         Upload Image
                     </Button>
                 </label>
+
+                {previewURL && (
+                    <div style={{marginBottom: '20px'}}>
+                        <img src={previewURL} alt="Preview" style={{maxWidth: '50%', height: 'auto'}} />
+                    </div>
+                )}
+
                 <TextareaAutosize 
                     rowsMin={5}
                     placeholder="Caption"
@@ -113,4 +132,5 @@ function AddPostPage() {
         </Paper>
     );
 }
+
 export default AddPostPage;
