@@ -126,7 +126,9 @@ function UserPage() {
   return (
     <ThemeProvider theme={darkTheme}>
       <div className={classes.container}>
-        <h2>{user.username}</h2>
+        <div className="header">
+          <h2>{user.username}</h2>
+        </div>
         <Grid container spacing={3} className="pets">
           {orderedPhotos.map((photo) => (
             <Grid item xs={12} sm={6} md={3} lg={2} key={photo.id} className={classes.gridItem}>

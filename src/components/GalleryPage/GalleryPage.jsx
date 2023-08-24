@@ -119,7 +119,9 @@ const handleLike = () => {
   return (
     <ThemeProvider theme={darkTheme}>
       <div className={classes.container}>
-        <h2>Petopia Feed!</h2>
+        <div className="header">
+          <h2>Petopia Feed!</h2>
+        </div>
         <Grid container spacing={3} className="feed">
           {orderedPhotos.map((photo) => (
             <Grid item xs={12} sm={6} md={3} lg={2} key={photo.id} className={classes.gridItem}>
