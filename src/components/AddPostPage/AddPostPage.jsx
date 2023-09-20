@@ -1,39 +1,40 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Button, TextareaAutosize, Paper, Typography } from '@material-ui/core';
-import CloudUploadIcon from '@material-ui/icons/CloudUpload';
-import { makeStyles } from '@material-ui/core/styles';
+import { Button, TextareaAutosize, Paper, Typography } from '@mui/material';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { styled } from '@mui/system';
 
-const useStyles = makeStyles((theme) => ({
-    root: {
-        maxWidth: 500,
-        margin: 'auto',
-        padding: theme.spacing(4),
-        marginTop: theme.spacing(8),
-        textAlign: 'center',
-        backgroundColor: '#333',
-        color: '#fff'
-    },
-    input: {
-        width: '100%',
-        marginBottom: theme.spacing(2),
-        color: '#fff',
-        backgroundColor: '#444',
-        borderColor: '#555',
-    },
-    button: {
-        marginTop: theme.spacing(2)
-    },
-    fileInput: {
-        display: 'none'
-    },
-    uploadBtn: {
-        marginBottom: theme.spacing(2)
-    }
+const StyledPaper = styled(Paper)(({ theme }) => ({
+    maxWidth: 500,
+    margin: 'auto',
+    padding: theme.spacing(4),
+    marginTop: theme.spacing(8),
+    textAlign: 'center',
+    backgroundColor: '#333',
+    color: '#fff',
+}));
+
+const StyledTextarea = styled(TextareaAutosize)(({ theme }) => ({
+    width: '100%',
+    marginBottom: theme.spacing(2),
+    color: '#fff',
+    backgroundColor: '#444',
+    borderColor: '#555',
+}));
+
+const StyledButton = styled(Button)(({ theme }) => ({
+    marginTop: theme.spacing(2),
+}));
+
+const FileInput = styled('input')({
+    display: 'none',
+});
+
+const UploadButton = styled(Button)(({ theme }) => ({
+    marginBottom: theme.spacing(2),
 }));
 
 function AddPostPage() {
-    const classes = useStyles();
     const [fileInput, setFileInput] = useState(null);
     const [caption, setCaption] = useState('');
     const [previewURL, setPreviewURL] = useState(null);
@@ -77,12 +78,12 @@ function AddPostPage() {
     };
 
     return (
-        <Paper className={classes.root}>
+        <StyledPaper>
             <Typography variant="h5" gutterBottom>
                 Add Post
             </Typography>
             <form onSubmit={handleSubmit}>
-                <input 
+                <FileInput 
                     type="file" 
                     accept="image/*" 
                     onChange={(e) => {
@@ -90,18 +91,16 @@ function AddPostPage() {
                         setPreviewURL(URL.createObjectURL(e.target.files[0]));
                     }}
                     id="imageUpload"
-                    className={classes.fileInput}
                 />
                 <label htmlFor="imageUpload">
-                    <Button
+                    <UploadButton
                         variant="contained"
                         color="primary"
                         component="span"
-                        className={classes.uploadBtn}
                         startIcon={<CloudUploadIcon />}
                     >
                         Upload Image
-                    </Button>
+                    </UploadButton>
                 </label>
 
                 {previewURL && (
@@ -110,26 +109,21 @@ function AddPostPage() {
                     </div>
                 )}
 
-                <TextareaAutosize 
+                <StyledTextarea 
                     rowsMin={5}
                     placeholder="Caption"
-                    className={classes.input}
                     value={caption}
                     onChange={(e) => setCaption(e.target.value)}
-                    style={{
-                        color: '#fff'
-                    }}
                 />
-                <Button 
+                <StyledButton 
                     variant="contained" 
                     color="primary" 
                     type="submit"
-                    className={classes.button}
                 >
                     Submit
-                </Button>
+                </StyledButton>
             </form>
-        </Paper>
+        </StyledPaper>
     );
 }
 

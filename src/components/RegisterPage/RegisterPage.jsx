@@ -13,18 +13,18 @@ function RegistrationPage() {
       <RegisterForm />
       <div className="centered-content">
         <p>Already have an account?</p>
-        </div>
-        <div>
-          <Button
-            variant="outlined"
-            style={{color: 'white'}}
-            className="mui-btn-asLink"
-            onClick={() => {
-              history.push('/login');
-            }}
-          >
-            Login
-          </Button>
+      </div>
+      <div>
+        <Button
+          variant="outlined"
+          sx={{ color: 'white' }}
+          className="mui-btn-asLink"
+          onClick={() => {
+            history.push('/login');
+          }}
+        >
+          Login
+        </Button>
       </div>
     </div>
   );

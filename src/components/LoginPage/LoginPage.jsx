@@ -1,7 +1,7 @@
 import React from 'react';
 import LoginForm from '../LoginForm/LoginForm';
 import { useHistory } from 'react-router-dom';
-import { Button } from '@mui/material';
+import Button from '@mui/material/Button';
 import './LoginPage.css';
 
 function LoginPage() {
@@ -13,8 +13,8 @@ function LoginPage() {
       <LoginForm />
       <div className="centered-content">
         <p>Don't have an account?</p>
-        </div>
-        <div>
+      </div>
+      <div>
         <Button
           variant="outlined"
           style={{color: 'white'}}

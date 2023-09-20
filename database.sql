@@ -29,3 +29,9 @@ CREATE TABLE "followers" (
     "following_id" INT REFERENCES "user" ON DELETE CASCADE,
     PRIMARY KEY ("follower_id", "following_id")
 );
+
+CREATE TABLE "likes" (
+  "user_id" INTEGER REFERENCES "user"("id") ON DELETE CASCADE,
+  "post_id" INTEGER REFERENCES "posts"("id") ON DELETE CASCADE,
+  PRIMARY KEY ("user_id", "post_id")
+);

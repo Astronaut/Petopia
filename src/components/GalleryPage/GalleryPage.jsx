@@ -1,38 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import { makeStyles, createTheme, ThemeProvider } from '@material-ui/core/styles';
-import { Card, CardActionArea, CardMedia, Grid, Dialog, DialogTitle, DialogActions, DialogContent, DialogContentText, Button, Link } from '@material-ui/core';
 import axios from 'axios';
+import { Card, CardActionArea, CardMedia, Grid, Dialog, DialogTitle, DialogActions, DialogContent, DialogContentText, Button, Link } from '@mui/material';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { styled } from '@mui/system';
 import './GalleryPage.css';
 
 const darkTheme = createTheme({
     palette: {
-      type: 'dark',
+      mode: 'dark',
       primary: {
         main: '#90caf9',
       },
     },
 });
 
-const useStyles = makeStyles((theme) => ({
-  container: {
-    maxWidth: 1600,
-    margin: '0 auto',
-  },
-  gridItem: {
-    maxWidth: 400,
-    minWidth: 397,
-    height: 460,
-    margin: '0 auto',
-  },
-  photoImage: {
-    height: 400,
-    width: '100%',
-    margin: '0 auto',
-  },
+const Container = styled('div')(({ theme }) => ({
+  maxWidth: 1600,
+  margin: '0 auto',
 }));
 
+const GridItem = styled(Grid)(({ theme }) => ({
+  maxWidth: 400,
+  minWidth: 397,
+  height: 460,
+  margin: '0 auto',
+}));
+
+const PhotoImage = styled(CardMedia)({
+  height: 400,
+  width: '100%',
+  margin: '0 auto',
+});
+
 function GalleryPage() {
-  const classes = useStyles();
   const [galleryPhotos, setGalleryPhotos] = useState([]);
   const [open, setOpen] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
@@ -118,17 +118,16 @@ const handleLike = () => {
 
   return (
     <ThemeProvider theme={darkTheme}>
-      <div className={classes.container}>
+      <Container>
         <div className="header">
           <h2>Petopia Feed!</h2>
         </div>
         <Grid container spacing={3} className="feed">
           {orderedPhotos.map((photo) => (
-            <Grid item xs={12} sm={6} md={3} lg={2} key={photo.id} className={classes.gridItem}>
+            <GridItem item xs={12} sm={6} md={3} lg={2} key={photo.id}>
               <Card onClick={() => handlePhotoClick(photo)}>
                 <CardActionArea>
-                  <CardMedia
-                    className={classes.photoImage}
+                  <PhotoImage
                     component="img"
                     image={photo.image_url}
                     title={`Photo ${photo.id}`}
@@ -138,7 +137,7 @@ const handleLike = () => {
                   {photo.likes} {photo.likes === 1 ? 'Like' : 'Likes'}
                 </div>
               </Card>
-            </Grid>
+            </GridItem>
           ))}
         </Grid>
         <Dialog
@@ -166,7 +165,7 @@ const handleLike = () => {
             </Button>
           </DialogActions>
         </Dialog>
-      </div>
+      </Container>
     </ThemeProvider>
   );
 }

@@ -1,40 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { makeStyles, createTheme, ThemeProvider } from '@material-ui/core/styles';
-import Snackbar from '@material-ui/core/Snackbar';
-import { Card, CardActionArea, CardMedia, Grid, Dialog, DialogTitle, DialogContent, DialogContentText, Button, DialogActions, TextField } from '@material-ui/core';
+import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
+import Snackbar from '@mui/material/Snackbar';
+import { Card, CardActionArea, CardMedia, Grid, Dialog, DialogTitle, DialogContent, DialogContentText, Button, DialogActions, TextField } from '@mui/material';
 import axios from 'axios';
 import './UserPage.css';
 
 const darkTheme = createTheme({
   palette: {
-    type: 'dark',
+    mode: 'dark',
     primary: {
       main: '#90caf9',
     },
   },
 });
 
-const useStyles = makeStyles((theme) => ({
-  container: {
-    maxWidth: 1600,
-    margin: '0 auto',
-  },
-  gridItem: {
-    maxWidth: 400,
-    minWidth: 397,
-    height: 460,
-    margin: '0 auto',
-  },
-  photoImage: {
-    height: 400,
-    width: '100%',
-    margin: '0 auto',
-  },
-}));
+const Container = styled('div')({
+  maxWidth: 1600,
+  margin: '0 auto',
+});
+
+const StyledGridItem = styled(Grid)({
+  maxWidth: 400,
+  minWidth: 397,
+  height: 460,
+  margin: '0 auto',
+});
+
+const StyledCardMedia = styled(CardMedia)({
+  height: 400,
+  width: '100%',
+  margin: '0 auto',
+});
 
 function UserPage() {
-  const classes = useStyles();
   const user = useSelector((store) => store.user);
   const [userPhotos, setUserPhotos] = useState([]);
   const [open, setOpen] = useState(false);
@@ -125,17 +124,16 @@ function UserPage() {
 
   return (
     <ThemeProvider theme={darkTheme}>
-      <div className={classes.container}>
+      <Container>
         <div className="header">
           <h2>{user.username}</h2>
         </div>
         <Grid container spacing={3} className="pets">
           {orderedPhotos.map((photo) => (
-            <Grid item xs={12} sm={6} md={3} lg={2} key={photo.id} className={classes.gridItem}>
+            <StyledGridItem item xs={12} sm={6} md={3} lg={2} key={photo.id}>
               <Card onClick={() => handlePhotoClick(photo)}>
                 <CardActionArea>
-                  <CardMedia
-                    className={classes.photoImage}
+                  <StyledCardMedia
                     component="img"
                     image={photo.image_url}
                     title={`Photo ${photo.id}`}
@@ -145,7 +143,7 @@ function UserPage() {
                   {photo.likes} {photo.likes === 1 ? 'Like' : 'Likes'}
                 </div>
               </Card>
-            </Grid>
+            </StyledGridItem>
           ))}
         </Grid>
         <Dialog
@@ -208,7 +206,7 @@ function UserPage() {
                 onClose={() => setErrorMessage(null)}
             />
         )}
-      </div>
+      </Container>
     </ThemeProvider>
   );
 }
