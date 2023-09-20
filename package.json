@@ -46,7 +46,7 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "preinstall": "npx npm-force-resolutions",
-    "heroku-postbuild": "npm --legacy-peer-deps"
+    "heroku-postbuild": "npm run build --legacy-peer-deps"
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
