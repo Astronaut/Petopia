@@ -17,5 +17,7 @@ Show some love! Pets (with a little help from their humans) can like and appreci
 - **Simple and Fun**:  
 We ensure a fun environment for all our users, and are continuously working to add additional cool features.
 
+## Public URL
+https://petopia.dev
 
 ## Created by Astronaut!
