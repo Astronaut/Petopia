@@ -24,9 +24,6 @@ else {
         host: 'localhost',
         port: 5432,
         database: 'petopia',
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        DATABASE_URL: ""
     });
 }
 
@@ -34,9 +31,6 @@ pool = new pg.Pool({
     host: 'localhost',
     port: 5432,
     database: 'petopia',
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    DATABASE_URL: ""
 });
 
 module.exports = pool;
